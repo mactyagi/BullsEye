@@ -9,52 +9,85 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @State private var alertIsVisible: Bool = false
-    @State private var sliderValue: Double = 10.0
+    @State private var alertIsVisible = false
+    @State private var sliderValue = 10.0
     @State private var game = Game()
     
     var body: some View {
-        VStack {
+        ZStack {
+            Color("BackgroundColor")
+                .edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+
             VStack {
                 VStack {
-                    Text("🎯🎯🎯\nPUT THE BULLSEYE AS CLOSE AS YOU CAN DO")
-                        .bold()
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
-                        .font(.footnote)
-                        .kerning(2)
-                    Text(String(game.target))
-                        .fontWeight(.black)
-                        .bold()
-                        .font(.largeTitle)
-                        .kerning(-1)
+                    InstructionsView(game: $game)
+                    SliderView(sliderValue: $sliderValue)
+                    HitMeButton(alertIsVisible: $alertIsVisible, sliderValue: $sliderValue, game: $game)
                 }
-                HStack {
-                    Text("1")
-                        .bold()
-                    Slider(value: self.$sliderValue, in: 1.0...100)
-                    Text("100")
-                        .bold()
-                }
-                Button("Hit Me") {
-                    
-                    print("Hello Swift UI")
-                    self.alertIsVisible = true
-                }
-                .alert("Hello there", isPresented: $alertIsVisible) {
-                    Button("Awsome") {
-                        
-                    }
-                } message: {
-                    var roundedValue: Int = Int(self.sliderValue.rounded())
-                    Text("The slider's Value is \(roundedValue).\n" + "You Scored \(self.game.points(sliderValue: roundedValue)) points this round.")
-                }
-
-                    
-
             }
         }
+    }
+}
+
+
+
+
+
+struct InstructionsView: View{
+    @Binding var game: Game
+    var body: some View{
+        VStack{
+            InstructionText(text: "🎯🎯🎯\nPUT THE BULLSEYE AS CLOSE AS YOU CAN DO")
+                .padding(.trailing, 30)
+                .padding(.leading, 30)
+            BigNumberText(text: String(game.target))
+        }
+    }
+}
+
+struct SliderView: View{
+    @Binding var sliderValue: Double
+    var body: some View{
+        HStack {
+            sliderLabeltext(text: "1")
+            Slider(value: $sliderValue, in: 1.0...100)
+            sliderLabeltext(text: "100")
+        }.padding()
+    }
+}
+
+struct HitMeButton: View{
+    @Binding var alertIsVisible: Bool
+    @Binding var sliderValue: Double
+    @Binding var game: Game
+    var body: some View{
+        Button("Hit Me".uppercased()) {
+            
+            print("Hello Swift UI")
+            alertIsVisible = true
+        }
         
+        .bold()
+        .font(.title3)
+        .padding(20.0)
+        .background(
+            ZStack {
+            Color("ButtonColor")
+            LinearGradient(colors: [Color.white.opacity(0.3), Color.clear], startPoint: .top, endPoint: .bottom)
+            
+        })
+        .foregroundColor(.white)
+        .cornerRadius(21)
+        
+        
+        .alert("Hello there", isPresented: $alertIsVisible) {
+            Button("Awsome") {
+                
+            }
+        } message: {
+            let roundedValue = Int(sliderValue.rounded())
+            Text("The slider's Value is \(roundedValue).\n" + "You Scored \(game.points(sliderValue: roundedValue)) points this round.")
+        }
     }
 }
 
